@@ -242,7 +242,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pivot: {fileID: 574581102}
-  rotationSpeed: 10
+  rotationSpeed: 50
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -440,7 +440,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pivot: {fileID: 711650080}
-  rotationSpeed: 10
+  rotationSpeed: 50
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
