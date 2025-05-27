@@ -4,6 +4,8 @@ Shader "_MyShaders/PS1 Shader"
     {
         _MainTex ("Texture", 2D) = "white" {}
         _Tint ("Tint", Color) = (1,1,1,1)
+        _SplashTex ("SplashTexture", 2D) = "black" {}
+        _SplashTint ("SplashTint", Color) = (1,1,1,1)
         _VertexSnapping ("Vertex Snapping", Range(1, 100)) = 10
     }
     SubShader
@@ -29,14 +31,15 @@ Shader "_MyShaders/PS1 Shader"
             {
                 float4 vertex : SV_POSITION;
                 noperspective float2 uv : TEXCOORD0;
+                noperspective float2 uv2 : TEXCOORD1;
 
-                float gouraud : TEXCOORD1;
+                float gouraud : TEXCOORD2;
 
             };
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
-            float4 _Tint;
+            sampler2D _MainTex, _SplashTex;
+            float4 _MainTex_ST, _SplashTex_ST;
+            float4 _Tint, _SplashTint;
 
             float _VertexSnapping;
 
@@ -58,6 +61,7 @@ Shader "_MyShaders/PS1 Shader"
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.vertex = ApplyVertexSnapping(o.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.uv2 = TRANSFORM_TEX(v.uv, _SplashTex);
 
                 o.gouraud = DotClamped(UnityObjectToWorldNormal(v.normal), _WorldSpaceLightPos0);
 
@@ -66,9 +70,12 @@ Shader "_MyShaders/PS1 Shader"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                fixed4 col = tex2D(_MainTex, i.uv) * _Tint;
+                fixed4 col = tex2D(_MainTex, i.uv);
+                fixed4 splash = tex2D(_SplashTex, i.uv2);
 
-                return col * i.gouraud;
+                fixed4 output = lerp(col * _Tint, col * _SplashTint, splash);
+
+                return output;
             }
             ENDCG
         }
