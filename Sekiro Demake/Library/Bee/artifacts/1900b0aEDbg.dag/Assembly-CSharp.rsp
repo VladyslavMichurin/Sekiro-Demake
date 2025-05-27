@@ -352,7 +352,10 @@
 -r:"Library/Bee/artifacts/1900b0aEDbg.dag/UnityEngine.UI.ref.dll"
 -analyzer:"D:/programs/Unity Editors/2022.3.7f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.Properties.SourceGenerator.dll"
 -analyzer:"D:/programs/Unity Editors/2022.3.7f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.SourceGenerators.dll"
-"Assets/Scripts/CameraEffects.cs"
+"Assets/Scripts/Camera Effects/Dithering.cs"
+"Assets/Scripts/Camera Effects/Quantization.cs"
+"Assets/Scripts/Camera Effects/ScreenScaler.cs"
+"Assets/Scripts/Rotate Around.cs"
 -langversion:9.0
 
 /deterministic

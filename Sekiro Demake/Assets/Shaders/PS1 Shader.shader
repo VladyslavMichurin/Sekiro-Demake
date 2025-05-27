@@ -3,6 +3,8 @@ Shader "_MyShaders/PS1 Shader"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        _Tint ("Tint", Color) = (1,1,1,1)
+        _VertexSnapping ("Vertex Snapping", Range(1, 100)) = 10
     }
     SubShader
     {
@@ -34,20 +36,27 @@ Shader "_MyShaders/PS1 Shader"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            float4 _Tint;
+
+            float _VertexSnapping;
 
             float4 ApplyVertexSnapping(float4 _vertex)
             {
-                float3 roundedVertex = _vertex.xyz;
-                roundedVertex.xy = _vertex.xy / _vertex.w;
-                roundedVertex.xy = round(roundedVertex.xy * _ScreenParams.xy) / _ScreenParams.xy;
+                float4 roundedVertex = _vertex;
+
+                roundedVertex.xy = roundedVertex.xy / _vertex.w;
+                float2 snappingResolution = _ScreenParams.xy / _VertexSnapping;
+                roundedVertex.xy = round(roundedVertex.xy * snappingResolution) / snappingResolution;
                 roundedVertex.xy *= _vertex.w;
-                return float4(roundedVertex, _vertex.w);
+
+                return roundedVertex;
             }
             v2f vert (appdata v)
             {
                 v2f o;
 
-                o.vertex = ApplyVertexSnapping(UnityObjectToClipPos(v.vertex));
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.vertex = ApplyVertexSnapping(o.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 
                 o.gouraud = DotClamped(UnityObjectToWorldNormal(v.normal), _WorldSpaceLightPos0);
@@ -57,7 +66,7 @@ Shader "_MyShaders/PS1 Shader"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                fixed4 col = tex2D(_MainTex, i.uv);
+                fixed4 col = tex2D(_MainTex, i.uv) * _Tint;
 
                 return col * i.gouraud;
             }
