@@ -63,7 +63,7 @@ Shader "_MyShaders/PS1 Shader"
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 o.uv2 = TRANSFORM_TEX(v.uv, _SplashTex);
 
-                o.gouraud = DotClamped(UnityObjectToWorldNormal(v.normal), _WorldSpaceLightPos0);
+                o.gouraud = DotClamped(UnityObjectToWorldNormal(v.normal), normalize(_WorldSpaceLightPos0));
 
                 return o;
             }
@@ -75,7 +75,7 @@ Shader "_MyShaders/PS1 Shader"
 
                 fixed4 output = lerp(col * _Tint, col * _SplashTint, splash);
 
-                return output;
+                return output * i.gouraud;
             }
             ENDCG
         }
