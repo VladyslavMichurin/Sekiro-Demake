@@ -6,6 +6,9 @@ Shader "_MyShaders/PS1 Shader"
         _Tint ("Tint", Color) = (1,1,1,1)
         _SplashTex ("SplashTexture", 2D) = "black" {}
         _SplashTint ("SplashTint", Color) = (1,1,1,1)
+
+        _Ambient ("Ambient Light", Color) = (0.3, 0.35, 0.5, 1)
+
         _VertexSnapping ("Vertex Snapping", Range(1, 100)) = 10
     }
     SubShader
@@ -41,15 +44,26 @@ Shader "_MyShaders/PS1 Shader"
             float4 _MainTex_ST, _SplashTex_ST;
             float4 _Tint, _SplashTint;
 
+            float4 _Ambient;
+
             float _VertexSnapping;
 
-            float4 ApplyVertexSnapping(float4 _vertex)
+            float4 VertexSnappingViewSpace(float4 _vertex)
+            {
+                float4 viewPos = mul(UNITY_MATRIX_MV, _vertex);
+
+                float2 snappingResolution = _ScreenParams.xy / _VertexSnapping;
+                viewPos.xyz = round(viewPos.xyz * _VertexSnapping) / _VertexSnapping;
+                float4 clipPos = mul(UNITY_MATRIX_P, viewPos);
+
+                return clipPos;
+            }
+            float4 VertexSnappingScreenSpace(float4 _vertex)
             {
                 float4 roundedVertex = _vertex;
 
                 roundedVertex.xy = roundedVertex.xy / _vertex.w;
-                float2 snappingResolution = _ScreenParams.xy / _VertexSnapping;
-                roundedVertex.xy = round(roundedVertex.xy * snappingResolution) / snappingResolution;
+                roundedVertex.xy = round(roundedVertex.xy * _ScreenParams.xy) / _ScreenParams.xy;
                 roundedVertex.xy *= _vertex.w;
 
                 return roundedVertex;
@@ -58,8 +72,9 @@ Shader "_MyShaders/PS1 Shader"
             {
                 v2f o;
 
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.vertex = ApplyVertexSnapping(o.vertex);
+                o.vertex = VertexSnappingViewSpace(v.vertex);
+                o.vertex = VertexSnappingScreenSpace(o.vertex);
+
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 o.uv2 = TRANSFORM_TEX(v.uv, _SplashTex);
 
@@ -74,8 +89,9 @@ Shader "_MyShaders/PS1 Shader"
                 fixed4 splash = tex2D(_SplashTex, i.uv2);
 
                 fixed4 output = lerp(col * _Tint, col * _SplashTint, splash);
+                float4 light = lerp(_Ambient, 1.0, i.gouraud);
 
-                return output * i.gouraud;
+                return output * light;
             }
             ENDCG
         }

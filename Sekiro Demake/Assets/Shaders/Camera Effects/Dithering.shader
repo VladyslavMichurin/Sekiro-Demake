@@ -49,13 +49,14 @@ Shader "_MyShaders/Dithering"
             {
                 fixed4 output = tex2D(_MainTex, i.uv);
 
-                int x = i.uv.x * _ScreenParams.x;
-                int y = i.uv.y * _ScreenParams.y;
+                int x = (int)(i.uv.x * _ScreenParams.x);
+                int y = (int)(i.uv.y * _ScreenParams.y);
+
                 float noise = float(ps1_dither_matrix[(x % 4) + (y % 4) * 4]) / 8;
 
-                output += noise;
+                output.rgb += noise;
 
-                return output;
+                return saturate(output);
             }
             ENDCG
         }
